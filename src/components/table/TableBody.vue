@@ -14,7 +14,7 @@
 
             <td>
                 <span v-if="!row.id">
-                    <button @click.prevent="$emit('create', row)">&checkmark;</button>
+                    <button @click.prevent="create(row)">&checkmark;</button>
                     <button @click.prevent="$emit('removeTempRow', rowKey)">&times;</button>
                 </span>
 
@@ -58,6 +58,14 @@
                 }
 
                 this.$emit('update', rowKey, attribute, value);
+            },
+
+            create(row) {
+                this.editedValue = {row: null, field: null};
+
+                this.$nextTick(() => {
+                    this.$emit('create', row);
+                });
             }
         },
 
