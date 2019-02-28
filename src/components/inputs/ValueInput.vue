@@ -1,14 +1,18 @@
 <template>
-    <span>
-        <TextInput
-            :value="value"
-            :field="field"
-            @input="newVal => $emit('input', newVal)"
-            ref="input"
-        />
+    <div class="value-container">
+        <div @click.prevent.stop="$emit('click')">
+            <TextInput
+                :value="value"
+                :field="field"
+                @input="newVal => $emit('input', newVal)"
+                ref="input"
+            />
+        </div>
 
-        <button @click.prevent="$emit('input', null)" v-if="!field.isNonNull() && value !== null">&times;</button>
-    </span>
+        <div>
+            <button @click.prevent="$emit('input', null)" v-if="!field.isNonNull() && value !== null">&times;</button>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -30,5 +34,7 @@
 </script>
 
 <style scoped>
-
+    .value-container {
+        display: flex;
+    }
 </style>

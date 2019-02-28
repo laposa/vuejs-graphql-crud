@@ -5,8 +5,8 @@ const queryBuilder = {};
 queryBuilder.paginationQuery = function paginationQuery(query) {
     const fields = queryBuilder.getFieldsForQuery(query.typeEntity);
 
-    return gql`query listingQuery($first: Int!, $offset: Int!) {
-        ${query.name}(first: $first, offset: $offset) {
+    return gql`query listingQuery($first: Int!, $offset: Int!, $orderBy: [${query.orderByArg.typeName}!]) {
+        ${query.name}(first: $first, offset: $offset, orderBy: $orderBy) {
             nodes { ${fields} }
             totalCount
         }

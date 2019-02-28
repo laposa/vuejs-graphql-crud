@@ -2,17 +2,18 @@
     <a href="#" v-if="field.name === 'id'" @click.prevent="evt => $emit('click', evt)">
         <strong>{{displayValue}}</strong>
     </a>
-    <span v-else @click.prevent="evt => $emit('click', evt)">
-        <span v-show="!isEdited" v-html="displayValue"></span>
-        <span v-show="isEdited">
+    <div v-else>
+        <div v-show="!isEdited" v-html="displayValue" @click.prevent.stop="$emit('click')"></div>
+        <div v-show="isEdited">
             <ValueInput
                 ref="input"
                 :value="internalValue"
                 :field="field"
                 @input="updateInternalValue"
+                @click="$emit('click')"
             />
-        </span>
-    </span>
+        </div>
+    </div>
 </template>
 
 <script>

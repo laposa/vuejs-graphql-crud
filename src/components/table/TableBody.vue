@@ -6,7 +6,7 @@
                         :value="row[field.name]"
                         :field="field"
                         :is-edited="editedValue.row === row && editedValue.field === field"
-                        @click="evt => editValue(evt, row, field)"
+                        @click="editValue(row, field)"
                         @updated="value => valueUpdated(row.id, field.name, value, rowKey)"
                         @finishEditing="editedValue = {row: null, field: null}"
                 />
@@ -38,19 +38,17 @@
         data() {
             return {
                 editedValue: {row: null, field: null},
-                lastClick: null,
             }
         },
 
         methods: {
-            editValue(evt, row, field) {
+            editValue(row, field) {
                 if (field.name === 'id') {
                     this.$emit('edit', row);
                     return;
                 }
 
                 this.editedValue = {row, field};
-                this.lastClick = evt;
             },
 
             valueUpdated(id, attribute, value, rowKey) {
@@ -59,15 +57,13 @@
                     return;
                 }
 
-                this.$emit('update', id, attribute, value);
+                this.$emit('update', rowKey, attribute, value);
             }
         },
 
         created() {
-            document.addEventListener('click', (e) => {
-                if (e !== this.lastClick) {
-                    this.editedValue = {row: null, field: null};
-                }
+            document.addEventListener('click', () => {
+                this.editedValue = {row: null, field: null};
             });
         }
     }

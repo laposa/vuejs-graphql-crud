@@ -1,10 +1,15 @@
 import pluralize  from "pluralize";
 import _ from "lodash";
 import GraphqlType from "@/entities/GraphqlType";
+import GraphqlField from "@/entities/GraphqlField";
 
 export default class GraphqlQuery {
     constructor(queryInfo, schema) {
         Object.assign(this, {...queryInfo});
+
+        // Parse input arguments
+        this.orderByArg = new GraphqlField(queryInfo.args.find(arg => arg.name === "orderBy"));
+
         this.singularName = pluralize.singular(queryInfo.name);
 
         // TO-DO: mutations & types should be parsed from schema

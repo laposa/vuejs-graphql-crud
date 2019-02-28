@@ -3,6 +3,8 @@ export default class GraphqlField {
         Object.assign(this, {...fieldInfo});
         this.types = [];
         this.parseType(fieldInfo.type);
+
+        this.typeName = this.types.find(type => type.name !== null).name || null;
     }
 
     parseType(type) {
@@ -19,6 +21,14 @@ export default class GraphqlField {
 
     isNonNull() {
         return this.types.find(type => type.kind === "NON_NULL") != null;
+    }
+
+    isObject() {
+        return this.types.find(type => type.kind === "OBJECT") != null;
+    }
+
+    isList() {
+        return this.types.find(type => type.kind === "LIST") != null;
     }
 
     isInt() {

@@ -21,7 +21,10 @@
 
         computed: {
             filteredQueries() {
-                return this.queriesList.filter(query => query.type.name && query.type.name.includes("Connection"));
+                // Display only queries with arguments for listing
+                return this.queriesList.filter(query =>
+                    query.args.filter(arg => ["first", "offset", "orderBy", "condition"].includes(arg.name)).length >= 4
+                );
             }
         }
     }

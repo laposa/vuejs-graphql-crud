@@ -13,7 +13,7 @@
             <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
 
             <table>
-                <TableHeader :fields="query.typeEntity.fieldEntities" />
+                <TableHeader :fields="query.typeEntity.fieldEntities" v-model="orderBy" />
                 <TableBody
                         :fields="query.typeEntity.fieldEntities"
                         :rows="rows"
@@ -76,7 +76,8 @@
                 variables() {
                     return {
                         first: this.resultsPerPage,
-                        offset: (this.page-1) * this.resultsPerPage
+                        offset: (this.page-1) * this.resultsPerPage,
+                        orderBy: this.orderBy !== '' ? [this.orderBy] : [],
                     }
                 },
                 manual: true,
@@ -103,6 +104,7 @@
         data() {
             return {
                 rows: [],
+                orderBy: '',
                 totalCount: 0,
                 page: 1,
                 resultsPerPage: 25,
@@ -136,20 +138,6 @@
                 }
             },
 
-            patch(id, attribute, value) {
-                try {
-                    this.$apollo.mutate({
-                        mutation: queryBuilder.patchMutation(this.query, attribute),
-                        variables: {
-                            id: id,
-                            patch: {[attribute]: value}
-                        },
-                    });
-                } catch (error) {
-                    messagesStore.addError(error.message);
-                }
-            },
-
             update(row) {
                 try {
                     this.$apollo.mutate({
@@ -162,6 +150,22 @@
 
                     messagesStore.addSuccess(this.query.singularName + " was successfully updated");
                     this.mode = "list";
+                } catch (error) {
+                    messagesStore.addError(error.message);
+                }
+            },
+
+            patch(rowKey, attribute, value) {
+                try {
+                    this.$apollo.mutate({
+                        mutation: queryBuilder.patchMutation(this.query, attribute),
+                        variables: {
+                            id: this.rows[rowKey].id,
+                            patch: {[attribute]: value}
+                        },
+                    });
+
+                    this.$set(this.rows[rowKey], attribute, value);
                 } catch (error) {
                     messagesStore.addError(error.message);
                 }
