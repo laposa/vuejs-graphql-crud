@@ -13,7 +13,7 @@
             </td>
 
             <td>
-                <span v-if="!row.id">
+                <span v-if="row.id === null || row.id === undefined">
                     <button @click.prevent="create(row)">&checkmark;</button>
                     <button @click.prevent="$emit('removeTempRow', rowKey)">&times;</button>
                 </span>

@@ -1,11 +1,11 @@
 {
-  "name": "vue-graphql-crud",
+  "name": "vuejs-graphql-crud",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-package": "vue-cli-service build --target lib --name vueGraphqlCrud ./src/components/VueGraphqlCrud.vue",
+    "build-package": "vue-cli-service build --target lib --name VueGraphqlCrud",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

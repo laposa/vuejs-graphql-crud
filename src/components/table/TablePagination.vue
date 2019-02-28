@@ -60,7 +60,7 @@
 
         data() {
             return {
-                maxPages: 20,
+                maxPages: 10,
                 leftPages: [],
             }
         },
@@ -93,7 +93,7 @@
             }
         },
 
-        mounted(){
+        mounted() {
             this.generateLeftPages()
         }
     }
@@ -102,7 +102,6 @@
 <style scoped>
     ul {
         list-style: none;
-        margin: 25px 0 0 0;
         padding: 0;
     }
 

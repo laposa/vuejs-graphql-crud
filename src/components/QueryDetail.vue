@@ -9,10 +9,17 @@
         <MessagesContainer/>
 
         <div v-if="mode === 'list'">
+            <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
+
+            <div class="pagination">
+                <TablePagination
+                        v-if="numberOfPages > 1"
+                        v-model="page"
+                        :num-of-pages="numberOfPages"
+                />
+            </div>
+
             <div id="tableContainer">
-
-                <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
-
                 <table>
                     <TableHeader :fields="query.typeEntity.fieldEntities" v-model="orderBy"/>
                     <TableBody
@@ -28,12 +35,15 @@
                 </table>
             </div>
 
-            <TablePagination
-                    v-if="numberOfPages > 1"
-                    v-model="page"
-                    :num-of-pages="numberOfPages"/>
+            <div class="pagination">
+                <TablePagination
+                        v-if="numberOfPages > 1"
+                        v-model="page"
+                        :num-of-pages="numberOfPages"
+                />
+            </div>
 
-            <button @click.prevent="inlineAddRow">&plus; Add {{query.singularName}}</button>
+            <button id="addRow" @click.prevent="inlineAddRow">&plus; Add {{query.singularName}}</button>
         </div>
 
 
@@ -116,6 +126,8 @@
             query() {
                 this.mode = "list";
                 this.selectedRow = null;
+                this.page = 1;
+                this.orderBy = "";
             }
         },
 
@@ -224,7 +236,6 @@
 <style scoped>
     #tableContainer {
         overflow-x: scroll;
-        padding: 2rem 0rem;
     }
 
     table tfoot {
@@ -236,6 +247,16 @@
     }
 
     #createRow {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    #addRow {
+        margin-top: 1rem;
+    }
+
+    .pagination:after {
+        content: "";
+        display: table;
+        clear: both;
     }
 </style>
