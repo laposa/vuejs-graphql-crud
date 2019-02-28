@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-package": "vue-cli-service build --target lib --name vueGraphqlCrud ./src/components/VueGraphqlCrud.vue",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

@@ -6,38 +6,36 @@
             <span v-if="mode === 'create'">create new {{query.singularName}}</span>
         </h1>
 
-        <MessagesContainer />
+        <MessagesContainer/>
 
-        <div v-if="mode === 'list'" id="tableContainer">
+        <div v-if="mode === 'list'">
+            <div id="tableContainer">
 
-            <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
+                <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
 
-            <table>
-                <TableHeader :fields="query.typeEntity.fieldEntities" v-model="orderBy" />
-                <TableBody
-                        :fields="query.typeEntity.fieldEntities"
-                        :rows="rows"
-                        @tempRowUpdate="(rowKey, attribute, value) => $set(rows[rowKey], attribute, value)"
-                        @removeTempRow="rowKey => rows.splice(rowKey, 1)"
-                        @update="patch"
-                        @create="create"
-                        @remove="remove"
-                        @edit="editRow"
-                />
-                <tfoot>
-                    <tr>
-                        <td :colspan="query.typeEntity.fieldEntities.length">
-                            <TablePagination
-                                    v-if="numberOfPages > 1"
-                                    v-model="page"
-                                    :num-of-pages="numberOfPages" />
+                <table>
+                    <TableHeader :fields="query.typeEntity.fieldEntities" v-model="orderBy"/>
+                    <TableBody
+                            :fields="query.typeEntity.fieldEntities"
+                            :rows="rows"
+                            @tempRowUpdate="(rowKey, attribute, value) => $set(rows[rowKey], attribute, value)"
+                            @removeTempRow="rowKey => rows.splice(rowKey, 1)"
+                            @update="patch"
+                            @create="create"
+                            @remove="remove"
+                            @edit="editRow"
+                    />
+                </table>
+            </div>
 
-                            <button @click.prevent="inlineAddRow">&plus; Add {{query.singularName}}</button>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+            <TablePagination
+                    v-if="numberOfPages > 1"
+                    v-model="page"
+                    :num-of-pages="numberOfPages"/>
+
+            <button @click.prevent="inlineAddRow">&plus; Add {{query.singularName}}</button>
         </div>
+
 
         <div v-else>
             <CreateUpdateMutation
@@ -77,7 +75,7 @@
                 variables() {
                     return {
                         first: this.resultsPerPage,
-                        offset: (this.page-1) * this.resultsPerPage,
+                        offset: (this.page - 1) * this.resultsPerPage,
                         orderBy: this.orderBy !== '' ? [this.orderBy] : [],
                     }
                 },
