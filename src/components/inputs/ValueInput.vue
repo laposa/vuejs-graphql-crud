@@ -1,6 +1,6 @@
 <template>
     <div class="value-container">
-        <div @click.prevent.stop="$emit('click')">
+        <div class="input-container" @click.stop="$emit('click')">
             <TextInput
                 :value="value"
                 :field="field"
@@ -36,5 +36,9 @@
 <style scoped>
     .value-container {
         display: flex;
+    }
+
+    .input-container {
+        flex-grow: 1;
     }
 </style>

@@ -1,5 +1,6 @@
 <template>
     <div :class="message.type + '-message message'">
+        <h5 v-if="message.title !== ''">{{message.title}}</h5>
         <div v-html="message.text"></div>
 
         <button type="button" class="close" @click="removeMessage()">
@@ -32,6 +33,10 @@
 </script>
 
 <style scoped>
+    h5 {
+        margin: 0 0 1rem 0;
+    }
+
     div.message {
         position: relative;
         padding: .75rem 4rem .75rem 1.25rem;

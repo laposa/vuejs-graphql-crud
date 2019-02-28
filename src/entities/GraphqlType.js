@@ -13,4 +13,8 @@ export default class GraphqlType {
             }
         }
     }
+
+    getFieldByName(name) {
+        return this.fieldEntities.find(field => field.name === name);
+    }
 }

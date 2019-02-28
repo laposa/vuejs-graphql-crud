@@ -56,6 +56,7 @@
     import TableHeader from "@/components/table/TableHeader";
     import TableBody from "@/components/table/TableBody";
     import queryBuilder from "@/helpers/QueryBuilder";
+    import validator from "@/helpers/Validator";
     import TablePagination from "@/components/table/TablePagination";
     import CreateUpdateMutation from "@/components/CreateUpdateMutation";
     import MessagesContainer from "@/components/other/MessagesContainer";
@@ -123,6 +124,8 @@
         methods: {
             async create(row) {
                 try {
+                    validator.validateItem(row, this.query.typeEntity.fieldEntities);
+
                     await this.$apollo.mutate({
                         mutation: queryBuilder.createMutation(this.query),
                         variables: {
@@ -134,12 +137,14 @@
                     messagesStore.addSuccess(this.query.singularName + " was successfully created");
                     this.mode = "list";
                 } catch (error) {
-                    messagesStore.addError(error.message);
+                    messagesStore.addError(error.message, `Could not create new ${this.query.singularName}, please fix error(s) bellow:`);
                 }
             },
 
             update(row) {
                 try {
+                    validator.validateItem(row, this.query.typeEntity.fieldEntities);
+
                     this.$apollo.mutate({
                         mutation: queryBuilder.updateMutation(this.query),
                         variables: {
@@ -151,12 +156,14 @@
                     messagesStore.addSuccess(this.query.singularName + " was successfully updated");
                     this.mode = "list";
                 } catch (error) {
-                    messagesStore.addError(error.message);
+                    messagesStore.addError(error.message, `Could not update ${this.query.singularName}, please fix error(s) bellow:`);
                 }
             },
 
             patch(rowKey, attribute, value) {
                 try {
+                    validator.validateAttribute(value, this.query.typeEntity.getFieldByName(attribute));
+
                     this.$apollo.mutate({
                         mutation: queryBuilder.patchMutation(this.query, attribute),
                         variables: {
@@ -167,7 +174,7 @@
 
                     this.$set(this.rows[rowKey], attribute, value);
                 } catch (error) {
-                    messagesStore.addError(error.message);
+                    messagesStore.addError(error.message, `Could not update ${attribute} on ${this.query.singularName}, please fix error(s) bellow:`);
                 }
             },
 

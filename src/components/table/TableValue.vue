@@ -3,8 +3,8 @@
         <strong>{{displayValue}}</strong>
     </a>
     <div v-else>
-        <div v-show="!isEdited" v-html="displayValue" @click.prevent.stop="$emit('click')"></div>
-        <div v-show="isEdited">
+        <div v-if="!isEdited" v-html="displayValue" @click.prevent.stop="$emit('click')"></div>
+        <div v-if="isEdited">
             <ValueInput
                 ref="input"
                 :value="internalValue"

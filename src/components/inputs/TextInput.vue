@@ -51,6 +51,6 @@
 
 <style scoped>
     input {
-        width: 90%;
+        width: 100%;
     }
 </style>

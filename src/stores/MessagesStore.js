@@ -1,22 +1,22 @@
-let store = {
+const store = {
     state: {
         messages: []
     },
 
-    addMessage(text, type) {
-        this.state.messages.push({text: text, type: type});
+    addMessage(text, type, title) {
+        this.state.messages.push({text, type, title});
     },
 
     removeMessage(message) {
         this.state.messages.splice(this.state.messages.indexOf(message), 1);
     },
 
-    addError(text) {
-        this.addMessage(text, 'error');
+    addError(text, title = '') {
+        this.addMessage(text, 'error', title);
     },
 
-    addSuccess(text) {
-        this.addMessage(text, 'success');
+    addSuccess(text, title = '') {
+        this.addMessage(text, 'success', title);
     },
 
     clear() {
