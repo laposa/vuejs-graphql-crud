@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueApollo from 'vue-apollo'
+import { onError } from "apollo-link-error";
+import { Observable } from 'apollo-link';
 import {createApolloClient} from 'vue-cli-plugin-apollo/graphql-client'
 import gql from 'graphql-tag';
 
@@ -16,26 +18,57 @@ const defaultOptions = {
     tokenName: AUTH_TOKEN,
     // Enable Automatic Query persisting with Apollo Engine
     persisting: false,
-
-    getAuth: (tokenName) =>  {
-        const token = localStorage.getItem(tokenName);
-        return token ? `Bearer ${token}` : null;
-    }
 };
 
-
-
 export function createProvider(options = {}) {
+    const {authentication} = options;
+
+    const authClient = createApolloClient({
+        ...defaultOptions,
+        ...options,
+    }).apolloClient;
+
+
+    let link = null;
+    if (authentication !== undefined) {
+        link = onError(({ graphQLErrors, operation, forward }) => {
+            if (graphQLErrors && graphQLErrors.find(err => err.message.includes('jwt malformed')) !== null) {
+                return new Observable(observer => {
+                    authenticate(authClient, authentication.username, authentication.password)
+                        .then(jwToken => {
+                            operation.setContext(({headers = {}}) => ({
+                                headers: {
+                                    // Re-add old headers
+                                    ...headers,
+                                    // Switch out old access token for new one
+                                    authorization: jwToken ? `Bearer ${jwToken}` : null,
+                                }
+                            }))
+                        })
+                        .then(() => {
+                            const subscriber = {
+                                next: observer.next.bind(observer),
+                                error: observer.error.bind(observer),
+                                complete: observer.complete.bind(observer)
+                            };
+
+                            // Retry last failed request
+                            forward(operation).subscribe(subscriber);
+                        });
+                });
+            }
+        });
+    }
+
     // Create apollo client
     const {apolloClient} = createApolloClient({
         ...defaultOptions,
         ...options,
+        link
     });
 
-    const {authentication} = options;
-
     if (authentication !== undefined) {
-        authenticate(apolloClient, authentication.username, authentication.password);
+        authenticate(authClient, authentication.username, authentication.password);
     }
 
     // Create vue apollo provider
@@ -45,15 +78,7 @@ export function createProvider(options = {}) {
             $query: {
                 fetchPolicy: 'no-cache'
             },
-        },
-        errorHandler(error) {
-            if (error.message.includes('permission denied') && authentication !== undefined) {
-                authenticate(apolloClient, authentication.username, authentication.password);
-            }
-
-            // eslint-disable-next-line no-console
-            console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', error.message)
-        },
+        }
     })
 }
 
@@ -63,6 +88,8 @@ async function authenticate(apolloClient, username, password) {
             jwToken
         }
     }`;
+
+    await localStorage.removeItem(AUTH_TOKEN);
 
     const authResult = await apolloClient.mutate({
         mutation: mutation,
@@ -74,4 +101,5 @@ async function authenticate(apolloClient, username, password) {
 
     const jwToken = authResult.data.authenticate.jwToken;
     localStorage.setItem(AUTH_TOKEN, jwToken);
+    return jwToken;
 }

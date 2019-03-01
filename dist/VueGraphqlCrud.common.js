@@ -39559,10 +39559,126 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 // EXTERNAL MODULE: ./node_modules/vue-apollo/dist/vue-apollo.esm.js
 var vue_apollo_esm = __webpack_require__("522d");
 
+// EXTERNAL MODULE: ./node_modules/apollo-link/lib/bundle.esm.js + 1 modules
+var bundle_esm = __webpack_require__("d634");
+
+// CONCATENATED MODULE: ./node_modules/apollo-link-error/lib/bundle.esm.js
+
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+var onError = function (errorHandler) {
+    return new bundle_esm["ApolloLink"](function (operation, forward) {
+        return new bundle_esm["Observable"](function (observer) {
+            var sub;
+            var retriedSub;
+            var retriedResult;
+            try {
+                sub = forward(operation).subscribe({
+                    next: function (result) {
+                        if (result.errors) {
+                            retriedResult = errorHandler({
+                                graphQLErrors: result.errors,
+                                response: result,
+                                operation: operation,
+                                forward: forward,
+                            });
+                            if (retriedResult) {
+                                retriedSub = retriedResult.subscribe({
+                                    next: observer.next.bind(observer),
+                                    error: observer.error.bind(observer),
+                                    complete: observer.complete.bind(observer),
+                                });
+                                return;
+                            }
+                        }
+                        observer.next(result);
+                    },
+                    error: function (networkError) {
+                        retriedResult = errorHandler({
+                            operation: operation,
+                            networkError: networkError,
+                            graphQLErrors: networkError.result && networkError.result.errors,
+                            forward: forward,
+                        });
+                        if (retriedResult) {
+                            retriedSub = retriedResult.subscribe({
+                                next: observer.next.bind(observer),
+                                error: observer.error.bind(observer),
+                                complete: observer.complete.bind(observer),
+                            });
+                            return;
+                        }
+                        observer.error(networkError);
+                    },
+                    complete: function () {
+                        if (!retriedResult) {
+                            observer.complete.bind(observer)();
+                        }
+                    },
+                });
+            }
+            catch (e) {
+                errorHandler({ networkError: e, operation: operation, forward: forward });
+                observer.error(e);
+            }
+            return function () {
+                if (sub)
+                    sub.unsubscribe();
+                if (retriedSub)
+                    sub.unsubscribe();
+            };
+        });
+    });
+};
+var ErrorLink = (function (_super) {
+    __extends(ErrorLink, _super);
+    function ErrorLink(errorHandler) {
+        var _this = _super.call(this) || this;
+        _this.link = onError(errorHandler);
+        return _this;
+    }
+    ErrorLink.prototype.request = function (operation, forward) {
+        return this.link.request(operation, forward);
+    };
+    return ErrorLink;
+}(bundle_esm["ApolloLink"]));
+
+
+//# sourceMappingURL=bundle.esm.js.map
+
 // EXTERNAL MODULE: ./node_modules/vue-cli-plugin-apollo/graphql-client/index.js
 var graphql_client = __webpack_require__("efe7");
 
 // CONCATENATED MODULE: ./src/vue-apollo.js
+
 
 
 
@@ -39583,6 +39699,8 @@ function vue_apollo_templateObject() {
 
 
 
+
+
  // Install the vue plugin
 
 external_commonjs_vue_commonjs2_vue_root_Vue_default.a.use(vue_apollo_esm["a" /* default */]); // Name of the localStorage item
@@ -39593,23 +39711,57 @@ var defaultOptions = {
   // LocalStorage token
   tokenName: AUTH_TOKEN,
   // Enable Automatic Query persisting with Apollo Engine
-  persisting: false,
-  getAuth: function getAuth(tokenName) {
-    var token = localStorage.getItem(tokenName);
-    return token ? "Bearer ".concat(token) : null;
-  }
+  persisting: false
 };
 function createProvider() {
   var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-  // Create apollo client
-  var _createApolloClient = Object(graphql_client["createApolloClient"])(_objectSpread({}, defaultOptions, options)),
-      apolloClient = _createApolloClient.apolloClient;
-
   var authentication = options.authentication;
+  var authClient = Object(graphql_client["createApolloClient"])(_objectSpread({}, defaultOptions, options)).apolloClient;
+  var link = null;
 
   if (authentication !== undefined) {
-    authenticate(apolloClient, authentication.username, authentication.password);
+    link = onError(function (_ref) {
+      var graphQLErrors = _ref.graphQLErrors,
+          operation = _ref.operation,
+          forward = _ref.forward;
+
+      if (graphQLErrors && graphQLErrors.find(function (err) {
+        return err.message.includes('jwt malformed');
+      }) !== null) {
+        return new bundle_esm["Observable"](function (observer) {
+          authenticate(authClient, authentication.username, authentication.password).then(function (jwToken) {
+            operation.setContext(function (_ref2) {
+              var _ref2$headers = _ref2.headers,
+                  headers = _ref2$headers === void 0 ? {} : _ref2$headers;
+              return {
+                headers: _objectSpread({}, headers, {
+                  // Switch out old access token for new one
+                  authorization: jwToken ? "Bearer ".concat(jwToken) : null
+                })
+              };
+            });
+          }).then(function () {
+            var subscriber = {
+              next: observer.next.bind(observer),
+              error: observer.error.bind(observer),
+              complete: observer.complete.bind(observer)
+            }; // Retry last failed request
+
+            forward(operation).subscribe(subscriber);
+          });
+        });
+      }
+    });
+  } // Create apollo client
+
+
+  var _createApolloClient = Object(graphql_client["createApolloClient"])(_objectSpread({}, defaultOptions, options, {
+    link: link
+  })),
+      apolloClient = _createApolloClient.apolloClient;
+
+  if (authentication !== undefined) {
+    authenticate(authClient, authentication.username, authentication.password);
   } // Create vue apollo provider
 
 
@@ -39619,14 +39771,6 @@ function createProvider() {
       $query: {
         fetchPolicy: 'no-cache'
       }
-    },
-    errorHandler: function errorHandler(error) {
-      if (error.message.includes('permission denied') && authentication !== undefined) {
-        authenticate(apolloClient, authentication.username, authentication.password);
-      } // eslint-disable-next-line no-console
-
-
-      console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', error.message);
     }
   });
 }
@@ -39646,6 +39790,10 @@ function _authenticate() {
           case 0:
             mutation = src_default()(vue_apollo_templateObject());
             _context.next = 3;
+            return localStorage.removeItem(AUTH_TOKEN);
+
+          case 3:
+            _context.next = 5;
             return apolloClient.mutate({
               mutation: mutation,
               variables: {
@@ -39654,12 +39802,13 @@ function _authenticate() {
               }
             });
 
-          case 3:
+          case 5:
             authResult = _context.sent;
             jwToken = authResult.data.authenticate.jwToken;
             localStorage.setItem(AUTH_TOKEN, jwToken);
+            return _context.abrupt("return", jwToken);
 
-          case 6:
+          case 9:
           case "end":
             return _context.stop();
         }
