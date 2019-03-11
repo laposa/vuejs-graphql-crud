@@ -31,6 +31,10 @@ export default class GraphqlField {
         return this.types.find(type => type.kind === "LIST") != null;
     }
 
+    isText() {
+        return this.types.find(type => type.name === "Text") != null;
+    }
+
     isInt() {
         return this.types.find(type => type.name === "Int") != null;
     }

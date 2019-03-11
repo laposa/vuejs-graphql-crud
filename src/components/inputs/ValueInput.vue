@@ -1,7 +1,14 @@
 <template>
     <div class="value-container">
         <div class="input-container" @click.stop="$emit('click')">
-            <TextInput
+            <TextareaInput v-if="field.isText()"
+                :value="value"
+                :field="field"
+                @input="newVal => $emit('input', newVal)"
+                ref="input"
+            />
+
+            <TextInput v-else
                 :value="value"
                 :field="field"
                 @input="newVal => $emit('input', newVal)"
@@ -17,9 +24,11 @@
 
 <script>
     import TextInput from "@/components/inputs/TextInput";
+    import TextareaInput from "@/components/inputs/TextareaInput";
+
     export default {
         name: "ValueInput",
-        components: {TextInput},
+        components: {TextInput, TextareaInput},
         props: {
             value: {required: true},
             field: {type: Object, required: true},
