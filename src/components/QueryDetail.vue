@@ -29,8 +29,6 @@
                     <TableBody
                             :fields="query.typeEntity.fieldEntities"
                             :rows="rows"
-                            @tempRowUpdate="(rowKey, attribute, value) => $set(rows[rowKey], attribute, value)"
-                            @removeTempRow="rowKey => rows.splice(rowKey, 1)"
                             @update="patch"
                             @create="create"
                             @remove="remove"
@@ -46,8 +44,6 @@
                         :num-of-pages="numberOfPages"
                 />
             </div>
-
-            <button id="addRow" @click.prevent="inlineAddRow">&plus; Add {{query.singularName}}</button>
         </div>
 
 
@@ -236,17 +232,6 @@
             editRow(row) {
                 this.mode = "edit";
                 this.selectedRow = row;
-            },
-
-            inlineAddRow() {
-                const newRow = {};
-                for (const col of this.query.typeEntity.fieldEntities) {
-                    if (col.name === 'id') continue;
-
-                    newRow[col.name] = null;
-                }
-
-                this.rows.push(newRow);
             },
 
             displayListing() {

@@ -13,11 +13,6 @@
             </td>
 
             <td>
-                <span v-if="row.id === null || row.id === undefined">
-                    <button @click.prevent="create(row)">&checkmark;</button>
-                    <button @click.prevent="$emit('removeTempRow', rowKey)">&times;</button>
-                </span>
-
                 <button v-if="row.id" @click.prevent="$emit('remove', row.id)">&#128465;</button>
             </td>
         </tr>
@@ -52,11 +47,6 @@
             },
 
             valueUpdated(id, attribute, value, rowKey) {
-                if (!id) {
-                    this.$emit('tempRowUpdate', rowKey, attribute, value);
-                    return;
-                }
-
                 this.$emit('update', rowKey, attribute, value);
             },
 
