@@ -8,7 +8,7 @@
             </h4>
 
             <div v-for="(filter, filterKey) in group" :key="filterKey" class="filter">
-                <select @change="e => updateFilter(groupKey, filterKey, 'field', fields[e.target.value])" class="field">
+                <select @change="e => updateFilterField(groupKey, filterKey, fields[e.target.value])" class="field">
                     <option
                         v-for="(field, key) in fields"
                         :value="key"
@@ -115,6 +115,36 @@
                 }
 
                 return operators;
+            },
+
+            updateFilterField(groupKey, filterKey, newField) {
+                let newFilterValue = this.value[groupKey][filterKey].value;
+
+                if (newField.isString()) {
+                    newFilterValue = newFilterValue.toString();
+                }
+
+                if (newField.isNumber()) {
+                    if (newField.isInt()) {
+                        newFilterValue = parseInt(newFilterValue);
+                    }
+
+                    if (newField.isFloat()) {
+                        newFilterValue = parseFloat(newFilterValue);
+                    }
+
+                    if (isNaN(newFilterValue)) {
+                        newFilterValue = 1;
+                    }
+                }
+
+                if (newField.isDatetime()) {
+                    newFilterValue = new Date().toISOString().split('.')[0];
+                }
+
+                const newValue = [... this.value];
+                newValue[groupKey][filterKey].value = newFilterValue;
+                newValue[groupKey][filterKey].field = newField;
             },
 
             updateFilter(groupKey, filterKey, propertyName, value) {
