@@ -16,7 +16,7 @@
             />
         </div>
 
-        <div>
+        <div class="button-container">
             <button @click.prevent="$emit('input', null)" v-if="!field.isNonNull() && value !== null">&times;</button>
         </div>
     </div>
@@ -49,5 +49,10 @@
 
     .input-container {
         flex-grow: 1;
+        margin-right: 1rem;
+    }
+
+    .input-container > * {
+        width: 100%;
     }
 </style>

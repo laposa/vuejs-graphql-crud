@@ -11,6 +11,10 @@
         <div v-if="mode === 'list'">
             <button @click.prevent="createRow" id="createRow">&plus; Create {{query.singularName}}</button>
 
+            <div class="filter">
+                <Filters v-model="filters" :fields="query.typeEntity.fieldEntities" />
+            </div>
+
             <div class="pagination">
                 <TablePagination
                         v-if="numberOfPages > 1"
@@ -68,11 +72,12 @@
     import TablePagination from "@/components/table/TablePagination";
     import CreateUpdateMutation from "@/components/CreateUpdateMutation";
     import MessagesContainer from "@/components/other/MessagesContainer";
+    import Filters from "@/components/filter/Filters";
     import messagesStore from "@/stores/MessagesStore.js"
 
     export default {
         name: "QueryDetail",
-        components: {MessagesContainer, CreateUpdateMutation, TablePagination, TableBody, TableHeader},
+        components: {MessagesContainer, CreateUpdateMutation, TablePagination, TableBody, TableHeader, Filters},
         props: {
             query: {type: Object, required: true},
         },
@@ -80,13 +85,14 @@
         apollo: {
             __rows: {
                 query() {
-                    return this.paginationQuery
+                    return this.listingQuery
                 },
                 variables() {
                     return {
                         first: this.resultsPerPage,
                         offset: (this.page - 1) * this.resultsPerPage,
                         orderBy: this.orderBy !== '' ? [this.orderBy] : [],
+                        filter: this.queryFilter
                     }
                 },
                 manual: true,
@@ -94,7 +100,6 @@
                     if (!loading) {
                         this.rows = data[this.query.name].nodes;
                         this.totalCount = data[this.query.name].totalCount;
-
                     }
                 }
             }
@@ -105,8 +110,24 @@
                 return Math.ceil(this.totalCount / this.resultsPerPage);
             },
 
-            paginationQuery() {
-                return queryBuilder.paginationQuery(this.query);
+            listingQuery() {
+                return queryBuilder.listingQuery(this.query, this.filters);
+            },
+
+            queryFilter() {
+                const queryFilter = { or: [] };
+
+                for (const filterGroup of this.filters) {
+                    const groupQueryFilter = { and: [] };
+
+                    for (const filter of filterGroup) {
+                        groupQueryFilter.and.push({[filter.field.name]: {[filter.operator]: filter.value}});
+                    }
+
+                    queryFilter.or.push(groupQueryFilter);
+                }
+
+                return queryFilter;
             }
         },
 
@@ -114,6 +135,7 @@
             return {
                 rows: [],
                 orderBy: '',
+                filters: [],
                 totalCount: 0,
                 page: 1,
                 resultsPerPage: 25,
@@ -128,6 +150,8 @@
                 this.selectedRow = null;
                 this.page = 1;
                 this.orderBy = "";
+                this.rows = [];
+                this.filters = [];
             }
         },
 
@@ -258,5 +282,9 @@
         content: "";
         display: table;
         clear: both;
+    }
+
+    .filter {
+        margin-bottom: 1rem;
     }
 </style>

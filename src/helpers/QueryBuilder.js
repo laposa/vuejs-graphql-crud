@@ -2,15 +2,24 @@ import gql from 'graphql-tag';
 
 const queryBuilder = {
 
-    paginationQuery(query) {
+    listingQuery(query, filters) {
         const fields = this.getFieldsForQuery(query.typeEntity);
 
-        return gql`query listingQuery($first: Int!, $offset: Int!, $orderBy: [${query.orderByArg.typeName}!]) {
-            ${query.name}(first: $first, offset: $offset, orderBy: $orderBy) {
-                nodes { ${fields} }
-                totalCount
-            }
-        }`;
+        if (filters.length === 0) {
+            return gql`query listingQuery($first: Int!, $offset: Int!, $orderBy: [${query.orderByArg.typeName}!]) {
+                ${query.name}(first: $first, offset: $offset, orderBy: $orderBy) {
+                    nodes { ${fields} }
+                    totalCount
+                }
+            }`;
+        }
+
+        return gql`query listingQuery($first: Int!, $offset: Int!, $orderBy: [${query.orderByArg.typeName}!], $filter: ${query.filterArg.typeName}) {
+                ${query.name}(first: $first, offset: $offset, orderBy: $orderBy, filter: $filter) {
+                    nodes { ${fields} }
+                    totalCount
+                }
+            }`;
     },
 
     createMutation(query) {
@@ -54,8 +63,7 @@ const queryBuilder = {
         for (const field of queryType.fieldEntities) {
             if (field.isScalar()) {
                 result.push(field.name);
-            }
-            else {
+            } else {
                 // TO-DO: Implement relations
                 // result.push(`${field.name} { nodes {id} }`);
             }

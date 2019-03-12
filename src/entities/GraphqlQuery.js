@@ -9,6 +9,7 @@ export default class GraphqlQuery {
 
         // Parse input arguments
         this.orderByArg = new GraphqlField(queryInfo.args.find(arg => arg.name === "orderBy"));
+        this.filterArg =  new GraphqlField(queryInfo.args.find(arg => arg.name === "filter"));
 
         this.singularName = pluralize.singular(queryInfo.name);
 
