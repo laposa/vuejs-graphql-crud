@@ -36,7 +36,7 @@ export default class GraphqlField {
     }
 
     isText() {
-        return this.types.find(type => type.name === "Text") != null;
+        return this.isString() && this.description === "textarea";
     }
 
     isInt() {

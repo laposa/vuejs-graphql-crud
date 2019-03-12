@@ -98,7 +98,7 @@
                     {name: 'notIn', label: 'NOT IN (comma separated)'},
                 ];
 
-                if (field.isString() || field.isText()) {
+                if (field.isString()) {
                     operators = operators.concat( [
                         {name: 'includes', label: 'LIKE %...%'},
                         {name: 'notIncludes', label: 'NOT LIKE %...%'},
