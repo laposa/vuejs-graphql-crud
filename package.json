@@ -12,7 +12,7 @@
   "dependencies": {
     "apollo-link": "latest",
     "apollo-link-error": "^1.1.13",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "pluralize": "^7.0.0",
     "vue": "^2.6.12",
     "vue-apollo": "^3.0.4",
